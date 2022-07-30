@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+# A script to connect to an Android 11+ device completely wirelessly.
+#
+# The script first scanns for and connects to the dynamic port opened by the
+# wireless debugging feature, and then switches to ADB over WiFi at port 5555.
+
+if [ -z "$1" ]; then
+	echo No IP address provided
+	exit 1
+fi
+
+RESULT=$(adb connect $1:5555)
+
+if [[ "$RESULT" == *"connected"* ]]; then
+	exit
+fi
+
+# Get the dynamic port.
+PORT=$(nmap $1 -p 32000-46000 | awk "/\/tcp/" | cut -d/ -f1)
+
+if [ -z "$PORT" ]; then
+	echo No port detected. Is wireles debugging enabeled?
+	exit 1
+fi
+
+adb connect $1:$PORT
+adb tcpip 5555
+adb connect $1:5555
+
+adb disconnect $1:$PORT
