@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# Ingest and transcode footage from Mini 3 Pro (H.264/H265 mp4) to MPEG4 mov, and copy subtitles.
+# Ingest and transcode footage from Mini 3 Pro (H.264/H265 mp4) to MPEG4 mov, and copy other files.
 # 
 # If a parameter is provided, that will be appended to the name of the new folder.
 
@@ -23,5 +23,4 @@ for i in $source/*.MP4; do
     fi
 done
 
-cp $source/*.SRT $target
-
+find $source ! -name '*.MP4' -type f | xargs cp -t $target
