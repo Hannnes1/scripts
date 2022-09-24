@@ -1,15 +1,27 @@
 #!/usr/bin/bash
 
-# Ingest and transcode footage from Mini 3 Pro (H.264/H265 mp4) to MPEG4 mov, and copy subtitles
+# Ingest and transcode footage from Mini 3 Pro (H.264/H265 mp4) to MPEG4 mov, and copy subtitles.
+# 
+# If a parameter is provided, that will be appended to the name of the new folder.
 
 model='mini-3-pro'
 date=$(date '+%Y-%m-%d')
 source=/run/media/hannes/*/DCIM/100MEDIA
 target=/mnt/media/drone-footage/$model/$date
 
+if [ ! -z "$1" ]; then
+    target+="_$1"
+fi
+
 mkdir -p $target
 for i in $source/*.MP4; do
-    ffmpeg -i "$i" -q:v 31 -c:v mpeg4 $target/$(basename ${i%.*}).mov
+    ffmpeg -n -i "$i" -q:v 2 -c:v mpeg4 $target/$(basename ${i%.*}).mov
+
+    # Exit on ffmpeg failure
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 done
 
 cp $source/*.SRT $target
+
