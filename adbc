@@ -17,7 +17,7 @@ if [[ "$RESULT" == *"connected"* ]]; then
 fi
 
 # Get the dynamic port.
-PORT=$(nmap $1 -p 32000-46000 | awk "/\/tcp/" | cut -d/ -f1)
+PORT=$(nmap $1 -p 32000-47000 | awk "/\/tcp/" | cut -d/ -f1)
 
 if [ -z "$PORT" ]; then
 	echo No port detected. Is wireles debugging enabeled?
