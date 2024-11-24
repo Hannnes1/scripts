@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+# A script to start a new tmux session with my preferred layout
+#
+# The script opens two windows in the new session:
+#  1. A vertical split with nvim on the left and a shell on the right.
+#  2. A shell window.
+#
+#  Usage: tstart [-n name] [-p path]
+#
+#  Options:
+#  -n name   The name of the session (default: name of the current directory)
+#  -p path   The path to start the session in (default: current directory)
+
+name=''
+start_path=''
+
+while getopts 'n:p:' flag; do
+  case "${flag}" in
+    n)
+      name="${OPTARG}"
+      ;;
+    p)
+      start_path="${OPTARG}"
+      ;;
+    *)
+      echo "Usage: $0 [-n name] [-p path]"
+      exit 1
+      ;;
+  esac
+done
+
+cd "$start_path"
+
+session_name="${name:-$(basename "$PWD")}"
+
+tmux has-session -t "$session_name" 2>/dev/null
+
+if [ $? == 0 ]; then
+  echo "Session $session_name already exists"
+  exit 1
+fi
+
+tmux new-session -d -s "$session_name" -n code
+tmux send-keys -t "$session_name" 'nvim .' C-m
+
+tmux split-window -h
+tmux resize-pane -R 20
+
+tmux new-window -n shell -d
+
+tmux attach-session -t $session_name:0.0
